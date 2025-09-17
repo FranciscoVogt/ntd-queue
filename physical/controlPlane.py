@@ -4,7 +4,7 @@ p4 = bfrt.physic.pipe
 fwd_table = p4.SwitchIngress.fwd
 
 
-fwd_table.add_with_send(ingress_port=172, port=172)
+fwd_table.add_with_send(ingress_port=172, port=180)
 
 mir = bfrt.mirror
 

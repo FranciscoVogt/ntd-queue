@@ -25,6 +25,16 @@ port-enb 8/-
 an-set 8/- 2 
 port-dis 8/-
 port-enb 8/-
+port-add 7/- 100G NONE
+port-enb 7/-
+an-set 7/- 2 
+port-dis 7/-
+port-enb 7/-
+port-add 17/- 100G NONE
+port-enb 17/-
+an-set 17/- 2 
+port-dis 17/-
+port-enb 17/-
 show
 exit
 exit
