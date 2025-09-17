@@ -116,7 +116,7 @@ control SwitchIngress(
 
     table fwd {
         key = {
-            intr_prsr_md.ingress_port	:	exact;
+            ig_intr_md.ingress_port	:	exact;
         }
         actions = {
             send;
