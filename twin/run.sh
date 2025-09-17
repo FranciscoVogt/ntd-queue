@@ -5,11 +5,11 @@ killall run_switchd
 
 bf_kdrv_mod_load $SDE_INSTALL
 
-/$SDE/../tools/p4_build.sh ntd.p4
+/$SDE/../tools/p4_build.sh ndt.p4
 
 
 
-/$SDE/run_switchd.sh -p ntd &
+/$SDE/run_switchd.sh -p ndt &
 
 sleep 30
 

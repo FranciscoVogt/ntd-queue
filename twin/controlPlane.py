@@ -1,5 +1,5 @@
 #from netaddr import IPAddress
-p4 = bfrt.ntd.pipe
+p4 = bfrt.ndt.pipe
 
 fwd_table = p4.SwitchIngress.fwd
 
