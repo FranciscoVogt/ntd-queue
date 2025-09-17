@@ -4,7 +4,7 @@ p4 = bfrt.ntd.pipe
 fwd_table = p4.SwitchIngress.fwd
 
 
-fwd_table.add_with_multicast(ingress_port=135, mcast_grp=1)
+fwd_table.add_with_multicast(ingress_port=164, mcast_grp=1)
 
 
 
@@ -13,7 +13,7 @@ fwd_table.add_with_multicast(ingress_port=135, mcast_grp=1)
 
 PRE = bfrt.pre
 
-PRE.node.entry(1, 10, [], [134,135]).push()
+PRE.node.entry(1, 10, [], [164,172]).push()
 
 PRE.mgid.entry(1, [1], [False], [0]).push()
 
