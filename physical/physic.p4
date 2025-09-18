@@ -313,11 +313,11 @@ control SwitchEgress(
 			eg_md.enqTime = (bit<32>)eg_intr_md.enq_tstamp;
 			eg_md.deqTime = (bit<32>)eg_intr_md_from_prsr.global_tstamp;
 			
-			write_deqTime.execute(eq_md.qID);
-			write_enqTime.execute(eq_md.qID);
+			write_deqTime.execute(eg_md.qID);
+			write_enqTime.execute(eg_md.qID);
 			
-			write_deqDepth.execute(eq_md.qID);
-			write_enqDepth.execute(eq_md.qID);
+			write_deqDepth.execute(eg_md.qID);
+			write_enqDepth.execute(eg_md.qID);
 		
 		
 		
