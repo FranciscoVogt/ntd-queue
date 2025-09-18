@@ -290,7 +290,7 @@ control SwitchEgress(
     apply {
 
 		//collect the information
-		if (hdr.ether_type == ETHERTYPE_MONITOR){
+		if (hdr.ethernet.ether_type == ETHERTYPE_MONITOR){
 		
 			
 			
