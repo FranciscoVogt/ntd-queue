@@ -125,12 +125,12 @@ control SwitchIngress(
         ig_intr_dprsr_md.drop_ctl = 0x1;
     }
 
-    action send(PortId_t port) {
+    action send(PortId_t port, MirrorType mType) {
         //define output port
         ig_intr_tm_md.ucast_egress_port = port;
         
         //define that mirror will happen and the mirror session ID
-        ig_intr_dprsr_md.mirror_type = 2;
+        ig_intr_dprsr_md.mirror_type = mType;
         ig_md.session_ID = 1;
         
     }
