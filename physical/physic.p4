@@ -8,6 +8,9 @@ typedef bit<32> ipv4_addr_t;
 const ether_type_t ETHERTYPE_IPV4 = 16w0x0800;
 const ether_type_t ETHERTYPE_VLAN = 16w0x8100;
 
+
+const ether_type_t ETHERTYPE_MONITOR = 0x1234;
+
 header ethernet_h {
     mac_addr_t dst_addr;
     mac_addr_t src_addr;
@@ -35,9 +38,21 @@ header ipv4_h {
     ipv4_addr_t dst_addr;
 }
 
+
+header monitor_h {
+	bit<32> qID;
+	bit<32> enqDepth;
+	bit<32> deqDepth;	
+	bit<32> enqTime;
+	bit<32> deqTime;
+	bit<32> reportTime;
+
+}
+
 struct headers {
     pktgen_timer_header_t timer;
     ethernet_h	ethernet;
+    monitor_h	mon;
     vlan_tag_h	vlan_tag;
     ipv4_h		ipv4;
 }
@@ -48,7 +63,11 @@ struct my_ingress_metadata_t {
 }
 
 struct my_egress_metadata_t {
-
+	bit<32> qID;
+	bit<32> enqDepth;
+	bit<32> deqDepth;	
+	bit<32> enqTime;
+	bit<32> deqTime;
 }
 
 parser SwitchIngressParser(
@@ -70,9 +89,15 @@ parser SwitchIngressParser(
         transition select(hdr.ethernet.ether_type) {
             ETHERTYPE_IPV4:  parse_ipv4;
             ETHERTYPE_VLAN:  parse_vlan;
+            ETHERTYPE_MONITOR: parse_monitor;
             default: accept;
         }
     }
+    
+    state parse_monitor {
+		packet.extract(hdr.mon);
+		transition accept;
+	}
 
     state parse_vlan {
         packet.extract(hdr.vlan_tag);
@@ -169,9 +194,15 @@ parser SwitchEgressParser(
         transition select(hdr.ethernet.ether_type) {
             ETHERTYPE_IPV4:  parse_ipv4;
             ETHERTYPE_VLAN:  parse_vlan;
+            ETHERTYPE_MONITOR: parse_monitor;
             default: accept;
         }
     }
+    
+    state parse_monitor {
+		packet.extract(hdr.mon);
+		transition accept;
+	}
 
     state parse_vlan {
         packet.extract(hdr.vlan_tag);
@@ -187,6 +218,8 @@ parser SwitchEgressParser(
     }
 }
 
+typedef bit<32> reg_index_t;
+
 control SwitchEgress(
     inout headers hdr,
     inout my_egress_metadata_t eg_md,
@@ -195,7 +228,100 @@ control SwitchEgress(
     inout egress_intrinsic_metadata_for_deparser_t ig_intr_dprs_md,
     inout egress_intrinsic_metadata_for_output_port_t eg_intr_oport_md) {
 
+
+	/* save the enqueue depth */
+	Register<bit<32>, reg_index_t>(32) reg_enqDepth;
+	RegisterAction<bit<32>, reg_index_t, bit<32>>(reg_enqDepth) write_enqDepth = {
+		void apply(inout bit<32> value, out bit<32> result) {		
+			value = eg_md.enqDepth;
+		}
+	};
+
+	RegisterAction<bit<32>, reg_index_t, bit<32>>(reg_enqDepth) read_enqDepth = {
+		void apply(inout bit<32> value, out bit<32> result) {	
+			result = value;
+		}
+	};
+	
+	/* save the dequeue depth */
+	Register<bit<32>, reg_index_t>(32) reg_deqDepth;
+	RegisterAction<bit<32>, reg_index_t, bit<32>>(reg_deqDepth) write_deqDepth = {
+		void apply(inout bit<32> value, out bit<32> result) {		
+			value = eg_md.deqDepth;
+		}
+	};
+
+	RegisterAction<bit<32>, reg_index_t, bit<32>>(reg_deqDepth) read_deqDepth = {
+		void apply(inout bit<32> value, out bit<32> result) {	
+			result = value;
+		}
+	};
+	
+	
+	/* save the enqueue time */ 
+	Register<bit<32>, reg_index_t>(32) reg_enqTime;
+	RegisterAction<bit<32>, reg_index_t, bit<32>>(reg_enqTime) write_enqTime = {
+		void apply(inout bit<32> value, out bit<32> result) {		
+			value = eg_md.enqTime;
+		}
+	};
+
+	RegisterAction<bit<32>, reg_index_t, bit<32>>(reg_enqTime) read_enqTime = {
+		void apply(inout bit<32> value, out bit<32> result) {	
+			result = value;
+		}
+	};
+	
+	/* save the dequeue time */ 
+	Register<bit<32>, reg_index_t>(32) reg_deqTime;
+	RegisterAction<bit<32>, reg_index_t, bit<32>>(reg_deqTime) write_deqTime = {
+		void apply(inout bit<32> value, out bit<32> result) {		
+			value = eg_md.deqTime;
+		}
+	};
+
+	RegisterAction<bit<32>, reg_index_t, bit<32>>(reg_deqTime) read_deqTime = {
+		void apply(inout bit<32> value, out bit<32> result) {	
+			result = value;
+		}
+	};
+
+
     apply {
+
+		//collect the information
+		if (hdr.ether_type == ETHERTYPE_MONITOR){
+		
+			
+			
+			hdr.mon.deqTime = read_deqTime.execute(hdr.mon.qID);
+			hdr.mon.enqTime = read_enqTime.execute(hdr.mon.qID);
+			
+			hdr.mon.deqDepth = read_deqDepth.execute(hdr.mon.qID);
+			hdr.mon.enqDepth = read_enqDepth.execute(hdr.mon.qID);
+			
+			hdr.mon.reportTime = (bit<32>)eg_intr_md_from_prsr.global_tstamp;
+			
+		
+		}
+		//write information
+		else if (eg_intr_md.egress_port== 180){
+		
+			eg_md.qID = (bit<32>)eg_intr_md.egress_qid;
+			eg_md.enqDepth = (bit<32>)eg_intr_md.enq_qdepth;
+			eg_md.deqDepth = (bit<32>)eg_intr_md.deq_qdepth;	
+			eg_md.enqTime = (bit<32>)eg_intr_md.enq_tstamp;
+			eg_md.deqTime = (bit<32>)eg_intr_md_from_prsr.global_tstamp;
+			
+			write_deqTime.execute(eq_md.qID);
+			write_enqTime.execute(eq_md.qID);
+			
+			write_deqDepth.execute(eq_md.qID);
+			write_enqDepth.execute(eq_md.qID);
+		
+		
+		
+		}
 
     }
 }
