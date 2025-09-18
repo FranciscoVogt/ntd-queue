@@ -125,7 +125,7 @@ control SwitchIngress(
         ig_intr_dprsr_md.drop_ctl = 0x1;
     }
 
-    action send(PortId_t port, MirrorType mType) {
+    action send(PortId_t port, bit<3> mType) {
         //define output port
         ig_intr_tm_md.ucast_egress_port = port;
         
