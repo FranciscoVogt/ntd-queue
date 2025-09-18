@@ -289,6 +289,14 @@ control SwitchEgress(
 
     apply {
 
+
+		eg_md.qID = (bit<32>)eg_intr_md.egress_qid;
+			eg_md.enqDepth = (bit<32>)eg_intr_md.enq_qdepth;
+			eg_md.deqDepth = (bit<32>)eg_intr_md.deq_qdepth;	
+			eg_md.enqTime = (bit<32>)eg_intr_md.enq_tstamp;
+			eg_md.deqTime = (bit<32>)eg_intr_md_from_prsr.global_tstamp;
+
+
 		//collect the information
 		if (hdr.ethernet.ether_type == ETHERTYPE_MONITOR){
 		
@@ -306,20 +314,14 @@ control SwitchEgress(
 		}
 		//write information
 		else if (eg_intr_md.egress_port== 180){
-		
-			eg_md.qID = (bit<32>)eg_intr_md.egress_qid;
-			eg_md.enqDepth = (bit<32>)eg_intr_md.enq_qdepth;
-			eg_md.deqDepth = (bit<32>)eg_intr_md.deq_qdepth;	
-			eg_md.enqTime = (bit<32>)eg_intr_md.enq_tstamp;
-			eg_md.deqTime = (bit<32>)eg_intr_md_from_prsr.global_tstamp;
+	
 			
 			write_deqTime.execute(eg_md.qID);
 			write_enqTime.execute(eg_md.qID);
 			
 			write_deqDepth.execute(eg_md.qID);
 			write_enqDepth.execute(eg_md.qID);
-		
-		
+	
 		
 		}
 
