@@ -7,7 +7,7 @@ fwd_table = p4.SwitchIngress.fwd
 fwd_table.add_with_multicast(ingress_port=160, mcast_grp=1)
 
 
-
+fwd_table.add_with_send(ingress_port=130, port=130)
 
 #multicast configs
 
