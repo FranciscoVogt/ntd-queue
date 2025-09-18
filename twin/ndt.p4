@@ -8,6 +8,8 @@ typedef bit<32> ipv4_addr_t;
 const ether_type_t ETHERTYPE_IPV4 = 16w0x0800;
 const ether_type_t ETHERTYPE_VLAN = 16w0x8100;
 
+const ether_type_t ETHERTYPE_MONITOR = 0x1234;
+
 header ethernet_h {
     mac_addr_t dst_addr;
     mac_addr_t src_addr;
