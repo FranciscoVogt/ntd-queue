@@ -25,6 +25,12 @@ port-enb 8/-
 an-set 8/- 2 
 port-dis 8/-
 port-enb 8/-
+port-add 3/0 100G NONE
+port-loopback 3/0 mac-near
+port-enb 3/0
+port-add 4/0 100G NONE
+port-loopback 4/0 mac-near
+port-enb 4/0
 show
 exit
 exit
