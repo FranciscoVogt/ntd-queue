@@ -121,6 +121,23 @@ control SwitchIngress(
     inout ingress_intrinsic_metadata_for_deparser_t ig_intr_dprsr_md,
     inout ingress_intrinsic_metadata_for_tm_t ig_intr_tm_md) {
 
+
+
+	/* save the enqueue depth */
+	Register<bit<32>, bit<10>(1024) reg_queueOrder;
+	RegisterAction<bit<32>, bit<10>, bit<32>>(reg_queueOrder) get_order = {
+		void apply(inout bit<32> value, out bit<32> result) {		
+			result = value;
+			if(value >= 7){
+				value = 0;
+			}
+			else {
+				value = value + 1;
+			}
+		}
+	};
+
+
     action drop() {
         ig_intr_dprsr_md.drop_ctl = 0x1;
     }
@@ -128,6 +145,9 @@ control SwitchIngress(
     action send(PortId_t port, bit<3> mType) {
         //define output port
         ig_intr_tm_md.ucast_egress_port = port;
+        ig_intr_tm_md.qid = (bit<5>)get_order.execute(0);
+        
+        
         
         //define that mirror will happen and the mirror session ID
         ig_intr_dprsr_md.mirror_type = mType;
@@ -313,7 +333,7 @@ control SwitchEgress(
 		
 		}
 		//write information
-		else if (eg_intr_md.egress_port== 180){
+		else if (eg_intr_md.egress_port== 135){
 	
 			
 			write_deqTime.execute(eg_md.qID);
