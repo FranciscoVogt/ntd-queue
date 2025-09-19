@@ -6,10 +6,11 @@ fwd_table = p4.SwitchIngress.fwd
 
 fwd_table.add_with_send(ingress_port=172, port=180, mType=2)
 
-fwd_table.add_with_send(ingress_port=134, port=135, mType=0)
+fwd_table.add_with_send(ingress_port=134, port=134, mType=0)
 
 #trying to do iperf
-fwd_table.add_with_send(ingress_port=135, port=134, mType=0)
+fwd_table.add_with_send(ingress_port=135, port=133, mType=0)
+fwd_table.add_with_send(ingress_port=133, port=135, mType=0)
 
 mir = bfrt.mirror
 
